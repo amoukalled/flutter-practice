@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/mytextfield.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,57 +11,52 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
+        theme: ThemeData(
+          primarySwatch: Colors.red,
+        ),
+        home: const LoginPage());
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController uNameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Login'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
+            Expanded(
+                child: Column(
+              children: [
+                MyTextField(
+                    controller: uNameController,
+                    label: 'Username',
+                    obscureText: false,
+                    icon: Icons.person),
+                MyTextField(
+                    controller: passwordController,
+                    label: 'Password',
+                    icon: Icons.lock,
+                    obscureText: true)
+              ],
+            ))
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }
