@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/authservice.dart';
+import 'package:myapp/main.dart';
 import 'package:myapp/mytextfield.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+import 'package:myapp/customtoast.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -10,7 +12,7 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPassController = TextEditingController();
 
@@ -27,9 +29,9 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
               children: [
                 MyTextField(
-                    controller: nameController,
-                    label: 'Username',
-                    icon: Icons.person,
+                    controller: emailController,
+                    label: 'Email',
+                    icon: Icons.email,
                     isPass: false),
                 MyTextField(
                     controller: passwordController,
@@ -42,16 +44,23 @@ class _RegisterPageState extends State<RegisterPage> {
                     icon: Icons.password,
                     isPass: true),
                 ElevatedButton(
-                    onPressed: () {
-                      String name = nameController.text;
+                    onPressed: () async {
+                      String email = emailController.text;
                       String pass = passwordController.text;
                       String confPass = confirmPassController.text;
 
-                      debugPrint(name);
-                      debugPrint(pass);
-                      debugPrint(confPass);
+                      debugPrint(emailController.toString());
+                      debugPrint(passwordController.toString());
+                      debugPrint(confirmPassController.toString());
 
-                      validateFields(name, pass, confPass);
+                      if (validateFields(email, pass, confPass)) {
+                        final message = await AuthService()
+                            .registration(email: email, password: pass);
+                        showCustomToast(message.toString());
+                        if (message!.contains('Success')) {
+                          navigateToLoginPage();
+                        }
+                      }
                     },
                     child: const Text('Register'))
               ],
@@ -63,9 +72,16 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 }
 
-bool validateFields(String name, String pass, String confPass) {
-  if (name.isEmpty || pass.isEmpty || confPass.isEmpty) {
+bool validateFields(String email, String pass, String confPass) {
+  final RegExp emailRegExp =
+      RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
+  if (email.isEmpty || pass.isEmpty || confPass.isEmpty) {
     showCustomToast("Please fill in all the fields!");
+    return false;
+  }
+  if (!emailRegExp.hasMatch(email)) {
+    showCustomToast("Please input a valid email!");
     return false;
   }
   if (pass != confPass) {
@@ -76,12 +92,8 @@ bool validateFields(String name, String pass, String confPass) {
   return true;
 }
 
-void showCustomToast(String message) {
-  Fluttertoast.showToast(
-    msg: message,
-    toastLength: Toast.LENGTH_LONG,
-    backgroundColor: Colors.grey,
-    textColor: Colors.white,
-    fontSize: 16.0,
-  );
+void navigateToLoginPage() async {
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  await navigatorKey.currentState?.pushReplacement(
+      MaterialPageRoute(builder: (context) => const LoginPage()));
 }
